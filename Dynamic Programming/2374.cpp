@@ -90,18 +90,18 @@ Walk two more units toward the origin for a total of 4 units of back-and-forth w
 #include <cstdio>
 #include <cmath>
 
-#define INF 0x7ffff
+#define INF 0x7fffffff
 
 using namespace std;
 
 int N, S;
 
 int fence[50005][2];
-int dp[50005][2]; // dp[i][j]: minDist to left side(0) or right side(1) of #i fence
-int minDist = INF;
+long dp[50005][2]; // dp[i][j]: minDist to left side(0) or right side(1) of #i fence
+long minDist = INF;
 
 int main() {
-  cin >> N >> S;
+  scanf("%d %d", &N, &S);
   for (int i=1; i<=N; i++) {
     scanf("%d %d", &fence[i][0], &fence[i][1]);
   }
@@ -112,20 +112,28 @@ int main() {
   for (int i=N-1; i>=1; i--) {
     dp[i][0] = INF;
     dp[i][1] = INF;
+    int ll = fence[i][0], rl = fence[i][1];
     for (int j=i+1; j<=N; j++){
-      if (fence[i][1]>fence[j][0] && fence[i][0]<fence[j][0] && fence[i][1]<fence[j][1]) {
+      if (fence[j][0]<rl && fence[j][0]>ll && fence[j][1]>rl) {
+        rl = fence[j][0];
         dp[i][0] = min(dp[i][0], dp[j][0]+fence[j][0]-fence[i][0]);
         dp[i][1] = min(dp[i][1], dp[j][0]+fence[i][1]-fence[j][0]);
       }
-      if (fence[i][0]>fence[j][0] && fence[i][0]<fence[j][1] && fence[i][1]>fence[j][1]) {
+      if (fence[j][1]<rl && fence[j][1]>ll && fence[j][0]<ll) {
+        ll = fence[j][1];
         dp[i][0] = min(dp[i][0], dp[j][1]+fence[j][1]-fence[i][0]);
         dp[i][1] = min(dp[i][1], dp[j][1]+fence[i][1]-fence[j][1]);
       }
-      if (fence[j][0]>fence[i][0] && fence[j][1]<fence[i][1]) {
+      if (fence[j][0]>ll && fence[j][1]<rl) {
+        ll = fence[j][0];
+        rl = fence[j][1];
         dp[i][0] = min(dp[i][0], dp[j][0]+fence[j][0]-fence[i][0]);
         dp[i][0] = min(dp[i][0], dp[j][1]+fence[j][1]-fence[i][0]);
         dp[i][1] = min(dp[i][1], dp[j][0]+fence[i][1]-fence[j][0]);
         dp[i][1] = min(dp[i][1], dp[j][1]+fence[i][1]-fence[j][1]);
+      }
+      if ((fence[j][0]<ll && fence[j][1]>rl) || ll>rl) {
+        break;
       }
     }
   }
@@ -153,7 +161,7 @@ int main() {
     }
   }
 
-  cout << minDist << endl;
+  printf("%ld\n", minDist);
 
   return 0;
 }
