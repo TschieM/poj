@@ -99,6 +99,10 @@ int N, S;
 int fence[50005][2];
 long dp[50005][2]; // dp[i][j]: minDist to left side(0) or right side(1) of #i fence
 long minDist = INF;
+bool open[200001];
+
+void init(int n);
+void close(int a, int b);
 
 int main() {
   scanf("%d %d", &N, &S);
@@ -110,31 +114,25 @@ int main() {
   dp[N][1] = fence[N][1] - S;
 
   for (int i=N-1; i>=1; i--) {
+    init(i);
     dp[i][0] = INF;
     dp[i][1] = INF;
-    int ll = fence[i][0], rl = fence[i][1];
     for (int j=i+1; j<=N; j++){
-      if (fence[j][0]<rl && fence[j][0]>ll && fence[j][1]>rl) {
-        rl = fence[j][0];
+      if (open[fence[j][0]+100000] && !open[fence[j][1]+100000]) {
         dp[i][0] = min(dp[i][0], dp[j][0]+fence[j][0]-fence[i][0]);
         dp[i][1] = min(dp[i][1], dp[j][0]+fence[i][1]-fence[j][0]);
       }
-      if (fence[j][1]<rl && fence[j][1]>ll && fence[j][0]<ll) {
-        ll = fence[j][1];
+      if (!open[fence[j][0]+100000] && open[fence[j][1]+100000]) {
         dp[i][0] = min(dp[i][0], dp[j][1]+fence[j][1]-fence[i][0]);
         dp[i][1] = min(dp[i][1], dp[j][1]+fence[i][1]-fence[j][1]);
       }
-      if (fence[j][0]>ll && fence[j][1]<rl) {
-        ll = fence[j][0];
-        rl = fence[j][1];
+      if (open[fence[j][0]+100000] && open[fence[j][1]+100000]) {
         dp[i][0] = min(dp[i][0], dp[j][0]+fence[j][0]-fence[i][0]);
         dp[i][0] = min(dp[i][0], dp[j][1]+fence[j][1]-fence[i][0]);
         dp[i][1] = min(dp[i][1], dp[j][0]+fence[i][1]-fence[j][0]);
         dp[i][1] = min(dp[i][1], dp[j][1]+fence[i][1]-fence[j][1]);
       }
-      if ((fence[j][0]<ll && fence[j][1]>rl) || ll>rl) {
-        break;
-      }
+      close(fence[j][0], fence[j][1]);
     }
   }
 
@@ -164,4 +162,19 @@ int main() {
   printf("%ld\n", minDist);
 
   return 0;
+}
+
+void init(int n) {
+  for (int i=0; i<=200000; i++) {
+    open[i] = false;
+    if (i>=fence[n][0]+100000 && i<=fence[n][1]+100000) {
+      open[i] = true;
+    }
+  }
+}
+
+void close(int a, int b) {
+  for (int i=a+100000; i<=b+100000; i++) {
+    open[i] = false;
+  }
 }
