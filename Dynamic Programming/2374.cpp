@@ -104,6 +104,11 @@ bool open[200001];
 void init(int n);
 void close(int a, int b);
 
+inline int absolute(int v)
+{
+    return v >= 0 ? v : -v;
+}
+
 int main() {
   scanf("%d %d", &N, &S);
   for (int i=1; i<=N; i++) {
@@ -139,23 +144,23 @@ int main() {
   for (int i=N; i>=1; i--) {
     int flag = 0;
     for (int j=i-1; j>=1; j--) {
-      if (fence[i][0]>fence[j][0]) {
+      if (fence[i][0]>fence[j][0] && fence[i][0]<fence[j][1]) {
         flag = 1;
         break;
       }
     }
     if (flag == 0) {
-      minDist = min(minDist, dp[i][0]+abs(fence[i][0]));
+      minDist = min(minDist, dp[i][0]+absolute(fence[i][0]));
     }
     flag = 0;
     for (int j=i-1; j>=1; j--) {
-      if (fence[i][1]<fence[j][1]) {
+      if (fence[i][1]<fence[j][1] && fence[i][1]>fence[j][0]) {
         flag = 1;
         break;
       }
     }
     if (flag == 0) {
-      minDist = min(minDist, dp[i][1]+abs(fence[i][1]));
+      minDist = min(minDist, dp[i][1]+absolute(fence[i][1]));
     }
   }
 
