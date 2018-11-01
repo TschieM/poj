@@ -45,13 +45,12 @@ using namespace std;
 
 vector<string> s;
 string brackets;
-int N,M;
+int N, M;
 int a[MAXN];
 int f[MAXN][MAXN];
 
 int main(){
-  while(cin>>brackets){
-    if(brackets=="end") break;
+  while(cin>>brackets && brackets!="end"){
     s.push_back(brackets);
   }
   M = s.size();

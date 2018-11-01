@@ -58,7 +58,7 @@ int main(){
   while(T--){
     segLen = 300;
     cin >> N;
-    POW = (1<<N)-1; 
+    POW = (1<<N)-1;
     for(int i=1; i<=N; i++) cin >> seg[i];
 
     for(int i=0; i<=N; i++) s[i][0] = 0;
@@ -83,11 +83,11 @@ int main(){
       for(int j=1; j<=s[i][0]; j++){
         if(i==1) dp[s[i][j]][j] = seg[j].length();
         else{
-          for(int k=0; k<N; k++){
-            if((s[i][j]>>k)&1){
-              int x = (1<<k);
+          for(int k=1; k<=N; k++){
+            if((s[i][j]>>(k-1))&1){
+              int x = (1<<(k-1));
               for(int l=1; l<=N; l++){
-                dp[s[i][j]][k+1] = min(dp[s[i][j]][k+1], dp[s[i][j]-x][l]+w[l][k+1]);
+                dp[s[i][j]][k] = min(dp[s[i][j]][k], dp[s[i][j]-x][l]+w[l][k]);
               }
             }
           }
