@@ -14,6 +14,7 @@ int query(int i, int l, int r, int left, int right);
 
 int n;
 int tree[1000];
+int lazy[1000];
 int arr[300];
 
 int main() {
@@ -26,6 +27,9 @@ int main() {
   while (cin >> left >> right){
     cout << "the minimal element in the given range is: " << endl;
     cout << query(1, 1, n, left, right) << endl;
+    for (int i=0; i<1000; i++) {
+      lazy[i] = 0;
+    }
     // cout << "the index and value of changed element: " << endl;
     // cin >> idx >> value;
     // update(idx, value, 1, 1, n);
@@ -66,12 +70,12 @@ void update(int i, int value, int j, int l, int r) {
 }
 
 void update_range(int left, int right, int value, int i, int l, int r) {
-  if (left>r || right <l || left>right) {
+  if (left>r || right<l) {
     return ;
   }
-  if (l == r) {
+  if (left<=l && right>=r) {
     tree[i] = value;
-    arr[l] = value;
+    lazy[i] = 1;
     return ;
   }
   int mid = (l+r) / 2;
@@ -81,12 +85,12 @@ void update_range(int left, int right, int value, int i, int l, int r) {
 }
 
 void update_rangex2(int left, int right, int i, int l, int r) {
-  if (left>r || right <l || left>right) {
+  if (left>r || right<l) {
     return ;
   }
-  if (l == r) {
+  if (left<=l && right>=r) {
     tree[i] *= 2;
-    arr[l] *= 2;
+    lazy[i] = 1;
     return ;
   }
   int mid = (l+r) / 2;
@@ -96,7 +100,15 @@ void update_rangex2(int left, int right, int i, int l, int r) {
 }
 
 int query(int i, int l, int r, int left, int right) {
-  if (left>r || right<l || left>right) {
+  if (lazy[i] == 1) {
+    lazy[2*i] = 1;
+    // tree[2*i] = tree[i];
+    tree[2*i] *= 2;
+    lazy[2*i+1] = 1;
+    // tree[2*i+1] = tree[i];
+    tree[2*i+1] *= 2;
+  }
+  if (left>r || right<l) {
     return INF;
   }
   if (left<=l && right>=r) {
