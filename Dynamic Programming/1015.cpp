@@ -52,132 +52,141 @@ allotted time.
 */
 
 #include <iostream>
-#include <vector>
-#include <algorithm>
+#include <cstdio>
 
 using namespace std;
 
-bool selected (int i, int j, int k);
-void juryfill(int i, int j, bool select);
-void jury_compare();
-
-
 int n, m;
-int p[205], d[205];
-int f[25][805];
-int path[25][805][2];
-vector<int> jury, jury_bak;
+int p[201], d[201], sub[201], sum[201];
+int f[21][801];
+int path[21][801][21];
+int jury[21];
 
 int main() {
   int cnt = 0;
   // input
-  while (cin>>n && n!=0 && cin>>m && m!=0) {
-    jury.clear();
+  while (cin>>n>>m && n && m) {
+    int psum = 0, dsum = 0;
     for (int i=1; i<=n; i++) {
       cin >> p[i] >> d[i];
+      sub[i] = p[i] - d[i];
+      sum[i] = p[i] + d[i];
     }
 
-    int mid = 20*m;
-    for (int i=1; i<25; i++) {
-      for (int j=0; j<805; j++) {
-        path[i][j][0] = path[i][j][1] = 0;
-        f[i][j] = -1;
+    int fix = 20 * m;
+    for (int j=0; j<=20; j++) {
+      for (int k=0; k<=800; k++) {
+        f[j][k] = (j==0 && k==fix)? 0:-9999999;
       }
     }
+
     for (int i=1; i<=n; i++) {
-      if (p[i]+d[i] > f[1][mid+p[i]-d[i]]) {
-        f[1][mid+p[i]-d[i]] = p[i]+d[i];
-        path[1][mid+p[i]-d[i]][1] = i;
-      }
-    }
-
-    for (int i=2; i<=m; i++) {
-      for (int j=0; j<=40*m; j++) {
-        for (int k=1; k<=n; k++) {
-          if (j>=p[k]-d[k] && !selected(i-1,j-p[k]+d[k],k) && f[i-1][j-p[k]+d[k]]!=-1) {
-            if (f[i][j] < f[i-1][j-p[k]+d[k]]+p[k]+d[k]) {
-              f[i][j] = f[i-1][j-p[k]+d[k]]+p[k]+d[k];
-              path[i][j][0] = j-p[k]+d[k];
-              path[i][j][1] = k;
+      for (int j=min(i,m); j>=1; j--) {
+        for (int k=0; k<=800; k++) {
+          if (k>=sub[i] && f[j-1][k-sub[i]]+sum[i]>f[j][k]) {
+            f[j][k] = f[j-1][k-sub[i]]+sum[i];
+            path[j][k][j] = i;
+            for (int l=j-1; l>=1; l--) {
+              path[j][k][l] = path[j-1][k-sub[i]][l];
             }
           }
         }
       }
     }
 
-    // output
-    int pout, dout;
-    cout << "Jury #" << ++cnt << endl;
     for (int i=0; i<=20*m; i++) {
-      if (f[m][mid-i] > f[m][mid+i]) {
-        pout = (f[m][mid-i]-i)/2;
-        dout = (f[m][mid-i]+i)/2;
-        juryfill(m, mid-i, true);
-        break;
+      int s = f[m][i+fix] >= f[m][-i+fix] ? i : -i;
+      if (f[m][s+fix] < 0) {
+        continue;
       }
-      if (f[m][mid-i] < f[m][mid+i]) {
-        pout = (f[m][mid+i]+i)/2;
-        dout = (f[m][mid+i]-i)/2;
-        juryfill(m, mid+i, true);
-        break;
+
+      for (int j=m; j>0; j--) {
+        jury[j] = path[m][s+fix][j];
+        psum += p[jury[j]];
+        dsum += d[jury[j]];
       }
-      if (f[m][mid-i]==f[m][mid+i] && f[m][mid-i]!=-1) {
-        pout = (f[m][mid+i]+i)/2;
-        dout = (f[m][mid+i]-i)/2;
-        juryfill(m, mid+i, true);
-        juryfill(m, mid-i, false);
-        jury_compare();
-        break;
-      }
+      break;
     }
-    cout << "Best jury has value " << pout << " for prosecution ";
-    cout << "and value " << dout << " for defence:" << endl;
-    for (int i=0; i<m; i++) {
-      cout << " " << jury[i];
-    }
-    cout << endl;
-    cout << endl;
-  // cout << abs(pout-dout) << " " << pout+dout << endl;
+
+    printf("Jury #%d\n", ++cnt);
+    printf("Best jury has value %d for prosecution and value %d for defence:\n", psum, dsum);
+    for (int i=1; i<=m; i++)
+        printf(" %d", jury[i]);
+    printf("\n\n");
   }
 
   return 0;
 }
 
-bool selected(int i, int j, int k){
-  while (path[i][j][1]) {
-    if (path[i][j][1] == k) {
-      return true;
-    }
-    j = path[i][j][0];
-    i--;
-  }
-  return false;
-}
-
-void juryfill(int i, int j, bool select) {
-  while (path[i][j][1]) {
-    if (select) {
-      jury.push_back(path[i][j][1]);
-    }
-    else {
-      jury_bak.push_back(path[i][j][1]);
-    }
-    j = path[i][j][0];
-    i--;
-  }
-  if (select) {
-    sort(jury.begin(),jury.end());
-  }
-  else {
-    sort(jury_bak.begin(),jury_bak.end());
-  }
-}
-
-void jury_compare() {
-  for (int i=0; i<jury.size(); i++) {
-    if (jury_bak[i] < jury[i]) {
-      jury = jury_bak;
-      break;
-    }
-  }
-}
+// #include <iostream>
+// #include <cstdio>
+//
+// using namespace std;
+//
+// int n, m;
+// int p[201], d[201], sub[201], sum[201];
+// int f[201][21][801]; // 前 i 个候选人 选取 j 个， p-d=k 时 p+d 的最大值
+// int path[201][21][801][21];
+// int jury[21];
+//
+// int main() {
+//   int cnt = 0;
+//   // input
+//   while (cin>>n>>m && n && m) {
+//     int psum = 0, dsum = 0;
+//     for (int i=1; i<=n; i++) {
+//       cin >> p[i] >> d[i];
+//       sub[i] = p[i] - d[i];
+//       sum[i] = p[i] + d[i];
+//     }
+//
+//     int fix = 20 * m;
+//     for (int i=0; i<=200; i++) {
+//       for (int j=0; j<=20; j++) {
+//         for (int k=0; k<=800; k++) {
+//           f[i][j][k] = (j==0 && k==fix)? 0:-9999999;
+//         }
+//       }
+//     }
+//
+//     for (int i=1; i<=n; i++) {
+//       for (int j=1; j<=min(i,m); j++) {
+//         for (int k=0; k<=800; k++) {
+//           f[i][j][k] = f[i-1][j][k];
+//           for (int l=1; l<=j; l++) {
+//             path[i][j][k][l] = path[i-1][j][k][l];
+//           }
+//           if (k>=sub[i] && f[i-1][j-1][k-sub[i]]+sum[i]>f[i][j][k]) {
+//             f[i][j][k] = f[i-1][j-1][k-sub[i]]+sum[i];
+//             path[i][j][k][j] = i;
+//             for (int l=j-1; l>=1; l--) {
+//               path[i][j][k][l] = path[i-1][j-1][k-sub[i]][l];
+//             }
+//           }
+//         }
+//       }
+//     }
+//
+//     for (int i=0; i<=20*m; i++) {
+//       int s = f[n][m][i+fix] >= f[n][m][-i+fix] ? i : -i;
+//       if (f[n][m][s+fix] < 0) {
+//         continue;
+//       }
+//
+//       for (int j=m; j>0; j--) {
+//         jury[j] = path[n][m][s+fix][j];
+//         psum += p[jury[j]];
+//         dsum += d[jury[j]];
+//       }
+//       break;
+//     }
+//
+//     printf("Jury #%d\n", ++cnt);
+//     printf("Best jury has value %d for prosecution and value %d for defence:\n", psum, dsum);
+//     for (int i=1; i<=m; i++)
+//         printf(" %d", jury[i]);
+//     printf("\n\n");
+//   }
+//
+//   return 0;
+// }
