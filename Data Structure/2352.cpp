@@ -78,7 +78,6 @@ int main() {
   scanf("%d", &N);
   for (int i=1; i<=N; i++) {
     scanf("%d %d", &x[i], &y[i]);
-    // cout << query(1, 1, x[i]+1, 1, MAXV) << endl;
     layer[query(1, 1, x[i]+1, 1, MAXV)]++;
     update(1, x[i]+1, 1, MAXV);
   }
