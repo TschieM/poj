@@ -46,6 +46,83 @@ using namespace std;
 
 #define MAXN 600000
 
+void update(int node, int val, int l, int r);
+long long query(int node, int ql, int qr, int l, int r);
+bool fcomp1(int i, int j);
+bool fcomp2(int i, int j);
+
+int n, arr[MAXN], idx[MAXN], narr[MAXN], tree[MAXN<<2];
+long long swapN = 0;
+
+int main() {
+  while (cin>>n && n) {
+    swapN = 0;
+    for (int i=1; i<=n; i++) {
+      scanf("%d", &arr[i]);
+      idx[i] = i;
+      narr[i] = i;
+    }
+
+    for (int i=0; i<(n<<2); i++) {
+      tree[i] = 0;
+    }
+
+    sort(idx+1, idx+n+1, fcomp1);
+    sort(narr+1, narr+n+1, fcomp2);
+
+    for (int i=1; i<=n; i++) {
+      swapN += i - 1 - query(1, 1, narr[i], 1, n);
+      update(1, narr[i], 1, n);
+    }
+
+    cout << swapN << endl;
+  }
+
+  return 0;
+}
+
+void update(int node, int val, int l, int r) {
+  if (l == r) {
+    tree[node] = 1;
+    return ;
+  }
+  int mid = (l+r) >> 1;
+  if (val <= mid) {
+    update(node<<1, val, l, mid);
+  } else {
+    update((node<<1)+1, val, mid+1, r);
+  }
+  tree[node] = tree[node<<1] + tree[(node<<1)+1];
+}
+
+long long query(int node, int ql, int qr, int l, int r) {
+  if (qr<l || ql>r) {
+    return 0;
+  }
+  if (ql<=l && qr>=r) {
+    return tree[node];
+  }
+  int mid = (l+r) >> 1;
+  return query(node<<1, ql, qr, l, mid) + query((node<<1)+1, ql, qr, mid+1, r);
+}
+
+bool fcomp1(int i, int j) {
+  return arr[i] < arr[j];
+}
+
+bool fcomp2(int i, int j) {
+  return idx[i] < idx[j];
+}
+
+/*  无序离散化
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+
+using namespace std;
+
+#define MAXN 600000
+
 void construct(int node, int l, int r);
 long long query(int node, int ql, int qr, int l, int r);
 bool fcomp(int i, int j);
@@ -105,3 +182,4 @@ long long query(int node, int ql, int qr, int l, int r) {
 bool fcomp(int i, int j) {
   return arr[i] < arr[j];
 }
+*/
