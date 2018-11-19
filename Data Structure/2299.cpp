@@ -48,8 +48,6 @@ using namespace std;
 
 void update(int node, int val, int l, int r);
 long long query(int node, int ql, int qr, int l, int r);
-bool fcomp1(int i, int j);
-bool fcomp2(int i, int j);
 
 int n, arr[MAXN], idx[MAXN], narr[MAXN], tree[MAXN<<2];
 long long swapN = 0;
@@ -67,8 +65,8 @@ int main() {
       tree[i] = 0;
     }
 
-    sort(idx+1, idx+n+1, fcomp1);
-    sort(narr+1, narr+n+1, fcomp2);
+    sort(idx+1, idx+n+1, [](int i, int j){return arr[i]<arr[j];});
+    sort(narr+1, narr+n+1, [](int i, int j){return idx[i]<idx[j];});
 
     for (int i=1; i<=n; i++) {
       swapN += i - 1 - query(1, 1, narr[i], 1, n);
@@ -104,14 +102,6 @@ long long query(int node, int ql, int qr, int l, int r) {
   }
   int mid = (l+r) >> 1;
   return query(node<<1, ql, qr, l, mid) + query((node<<1)+1, ql, qr, mid+1, r);
-}
-
-bool fcomp1(int i, int j) {
-  return arr[i] < arr[j];
-}
-
-bool fcomp2(int i, int j) {
-  return idx[i] < idx[j];
 }
 
 /*  无序离散化
